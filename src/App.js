@@ -5,8 +5,33 @@ import {useState} from "react"
 function App() {
 
     const jmSubsLegend = {
+
+        // note -- spellings here are intentional
+        // ex.    when checking to see if the order has no tomatoes 
+        // it is safer to see if the lunchdrop supplied text contains tomato instead of tomatoes
+        // this is because lunchdrops supplied text contains many irregularities and sometimes supplies tomatoe, tomatos, or other variations.
+
         hotSubs: [16, 17, 19, 26, 31, 42, 43, 44, 55, 56, 64, 65, 66],
-        mikesWay: ["onions, lettuce, tomatoes, vinegar, oil, oregano, salt"],
+
+        hotSubStandards: {
+            16: ["onion", "pepper"],
+            17: ["onion", "pepper"],
+            19: ["barbecue", "bbq", "sauce"],
+            26: ["lettuce", "tomato", "ranch", "bacon"],
+            31: ["lettuce", "tomato", "mayo"],
+            42: ["onion", "pepper", "mayo"],
+            43: ["onion", "pepper", "mayo"],
+            44: ["lettuce", "tomato", "blue", "buffalo", "franks", "hot sauce"],
+            55: ["onion", "green pepper", "sweet pepper", "jalapeno", "mushroom"],
+            56: ["onion", "green pepper", "sweet pepper", "jalapeno", "mushroom"],
+            64: ["onion", "pepper"],
+            65: ["onion", "pepper", "mushroom", "port"],
+            66: ["onion", "pepper", "mushroom", "port"],
+        },
+        mikesWay: ["onion", "lettuce", "tomato", "vinegar", "oil", "oregano", "salt"],
+        extras: ["mayo", "pickle", "banana pepper", "jalapeno pepper", "cherry pepper relish", "brown mustard", "yellow mustard", "spicy mustard", "honey mustard", "mustard"],
+        cheese: ["provolone", "swiss", "american", "cheese"],
+        breadtype: ["white", "wheat", "rosemary", "parmesan", "spinach", "gluten"]
     }
 
     const sideItemsCheck = (text) => {
@@ -17,16 +42,304 @@ function App() {
             }
         }
         return false;
-      }
+    }
 
     const [rawSubs, setRawSubs] = useState([]);
-
 
     document.addEventListener('paste', (e) => {
         e.preventDefault();
         let pasted = e.clipboardData.getData("text/html");
         logFormattedText(pasted)
     })
+
+    const coldSubSubtractionParse = (currChange, customerSub, mw, currSubNumber) => {
+        let changeFound = false;
+
+        // checking mikes way
+        for (let j = 0; j < mw.length; j++) {
+            console.log(mw[j], currChange)
+            if (currChange.includes(mw[j])) {
+                customerSub.subtractions.push(mw[j]);
+                changeFound = true;
+                break;
+            }
+        }
+
+        // #14 sanitation
+        if (!changeFound) {
+            if (currChange.includes("green bell pepper") || currChange.includes("green pepper")) {
+                if (currSubNumber == 14) {
+                    customerSub.subtractions.push("green pepper")
+                    changeFound = true;
+                }
+            } 
+        }
+
+        // checking mayo
+        if (!changeFound) {
+            if (currChange.includes("mayo")) {
+                if (currSubNumber == 9 || currSubNumber == 8 || currSubNumber == 1) {
+                    customerSub.subtractions.push("mayo");
+                }
+                changeFound = true;
+            } 
+        }
+        // checking cheese
+        if (!changeFound) {
+            for (let j = 0; j < jmSubsLegend.cheese; j++) {
+                if (currChange.includes(jmSubsLegend.cheese[j])) {
+                    if (currSubNumber != 1 || currSubNumber != 10) {
+                        customerSub.subtractions.push("cheese");
+                    }
+                    changeFound = true;
+                    break;
+                }
+            }
+        }
+        // checking bacon
+        if (!changeFound) {
+            if (currChange.includes("bacon")) {
+                if (currSubNumber == 9 || currSubNumber == 8 || currSubNumber == 1) {
+                    customerSub.subtractions.push("bacon");
+                }
+                changeFound = true;
+            }
+        }
+        // cleanup -- occurs when a misspelled, unknown or uncommon subtraction is supplied
+        // this text will be moved to the notes section and left for crewmate to decipher.
+        if (!changeFound) {
+            customerSub.notes = `${currChange}, ${customerSub.notes}`;
+        }
+    }
+
+    const hotSubSubtractionParse = (currChange, customerSub, currSubNumber) => {
+        let changeFound = false;
+        let hsub = jmSubsLegend.hotSubStandards[currSubNumber];
+
+        // checking basics. onions peppers etc...
+        for (let i = 0; i < hsub.length; i++) {
+            if (currChange.includes(hsub[i])) {
+                customerSub.subtractions.push(hsub[i])
+                changeFound = true;
+                break;
+            }
+        }
+
+        // checking cheese
+        if (!changeFound) {
+            for (let j = 0; j < jmSubsLegend.cheese; j++) {
+                if (currChange.includes(jmSubsLegend.cheese[j])) {
+                    customerSub.subtractions.push("cheese");
+                    changeFound = true;
+                    break;
+                }
+            }
+        }
+
+        // cleanup -- occurs when a misspelled, unknown or uncommon subtraction is supplied
+        // this text will be moved to the notes section and left for crewmate to decipher.
+        if (!changeFound) {
+            customerSub.notes = `${currChange}, ${customerSub.notes}`;
+        }
+
+    }
+
+    const coldSubAdditionParse = (currChange, customerSub, mw, xtra, currSubNumber, customerOrder) => {
+        let changeFound = false;
+
+        // checking mikes way
+        for (let j = 0; j < mw.length; j++) {
+            if (currChange.includes(mw[j])) {
+                // irrelevant change -- moving on
+                changeFound = true;
+                break;
+            }
+        }
+
+        // checking extras 
+        if (!changeFound) {
+            for (let j = 0; j < xtra.length; j++) {
+                if (currChange.includes(xtra[j])) {
+                    customerSub.additions.push(xtra[j]);
+                    changeFound = true;
+                    break;
+                }
+            }
+        }
+
+        // checking cheese
+        if (!changeFound) {
+            for (let j = 0; j < jmSubsLegend.cheese; j++) {
+                if (currChange.includes(jmSubsLegend.cheese[j])) {
+                    if (currSubNumber == 1 || currSubNumber == 10) {
+                        customerSub.additions.push("cheese");
+                    } else {
+                        customerSub.additions.push("extra cheese");
+                    }
+                    changeFound = true;
+                    break;
+                }
+            }
+        }
+
+        // checking bacon
+        if (!changeFound) {
+            if (currChange.includes("bacon")) {
+                customerSub.additions.push("bacon");
+                changeFound = true;
+            }
+        }
+
+        // checking extra meat
+        if (!changeFound) {
+            if (currChange.includes("meat")) {
+                customerSub.additions.push("extra meat");
+                changeFound = true;
+            }
+        }
+
+        // cleanup -- occurs when a misspelled, unknown or uncommon subtraction is supplied
+        // this text will be moved to the notes section and left for crewmate to decipher.
+        if (!changeFound) {
+            if (currChange.match(/\d/)) {
+                customerOrder.sideItems.push(currChange);
+            } else {
+                customerSub.notes = `${customerSub.notes}, ${currChange}`;
+            }
+
+        }
+    }
+
+    const hotSubAdditionParse = (currChange, customerSub, currSubNumber, xtra, customerOrder) => {
+        let changeFound = false;
+        let hsub = jmSubsLegend.hotSubStandards[currSubNumber];
+
+        // checking basics. onions peppers etc...
+        for (let i = 0; i < hsub.length; i++) {
+            if (currChange.includes(hsub[i])) {
+                if (!currChange.includes("bacon") || !currChange.includes("port")) {
+                    changeFound = true;
+                } 
+                //  else irrelevant addition -- moving on
+                break;
+            }
+        }
+
+        // checking extras 
+        if (!changeFound) {
+            for (let j = 0; j < xtra.length; j++) {
+                if (currChange.includes(xtra[j])) {
+                    customerSub.additions.push(xtra[j]);
+                    changeFound = true;
+                    break;
+                }
+            }
+        }
+
+        // checking cheese
+        if (!changeFound) {
+            for (let j = 0; j < jmSubsLegend.cheese; j++) {
+                if (currChange.includes(jmSubsLegend.cheese[j])) {
+                    customerSub.additions.push("extra cheese");
+                    changeFound = true;
+                    break;
+                }
+            }
+        }
+
+        // checking bacon
+        if (!changeFound) {
+            if (currChange.includes("bacon")) {
+                customerSub.additions.push("bacon");
+                changeFound = true;
+            }
+        }
+
+        // checking extra meat
+        if (!changeFound) {
+            if (currChange.includes("meat")) {
+                customerSub.additions.push("extra meat");
+                changeFound = true;
+            }
+        }
+
+        // checking portabello 
+        if (!changeFound) {
+            if (currChange.includes("port")) {
+                customerSub.additions.push("port");
+                changeFound = true;
+            }
+        }
+
+        // cleanup -- occurs when a misspelled, unknown or uncommon subtraction is supplied
+        // this text will be moved to the notes section and left for crewmate to decipher.
+        if (!changeFound) {
+            if (currChange.match(/\d/)) {
+                customerOrder.sideItems.push(currChange);
+            } else {
+                customerSub.notes = `${customerSub.notes}, ${currChange}`;
+            }
+        }
+    }
+
+    const bodyOfOrderParse = (element, rawText, customerOrder, customerSub) => {
+
+        let currSubNumber = customerSub.subNumber
+        
+        if (currSubNumber > 0 && currSubNumber <= 14) {
+            customerSub.isColdSub = true;
+        } else {
+            customerSub.isColdSub = false;
+        }
+        //  Sub Notes -- done first to make parsing more agreeable.
+        if (element.querySelector("em")) {
+          let notesText = element.querySelector("em").innerText;
+          customerSub.notes = notesText
+          rawText = rawText.slice(0, rawText.indexOf(notesText))
+        } 
+        let toParse = rawText.toLowerCase().split(",");
+        
+        let mw = jmSubsLegend.mikesWay;
+        let xtra = jmSubsLegend.extras;
+        for (let i = 0; i < toParse.length; i++) {
+            let currChange = toParse[i];
+            if (currChange.includes("no")) {
+                if (customerSub.isColdSub) {
+                    coldSubSubtractionParse(currChange, customerSub, mw, currSubNumber);
+                } else {
+                    hotSubSubtractionParse(currChange, customerSub, currSubNumber)
+                }
+            } else if (currChange.includes("add")) {
+                if (customerSub.isColdSub) {
+                    coldSubAdditionParse(currChange, customerSub, mw, xtra, currSubNumber, customerOrder);
+                } else {
+                    hotSubAdditionParse(currChange, customerSub, currSubNumber, xtra, customerOrder)
+                }
+            } 
+
+            // breadtype and cleanup
+            else {
+                let changeFound = false;
+                for (let j = 0; j < jmSubsLegend.breadtype.length; j++) {
+                    if (currChange.includes(jmSubsLegend.breadtype[j])) {
+                        customerSub.subBread = jmSubsLegend.breadtype[j];
+                        changeFound = true;
+                        break;
+                    }
+                }
+                
+                // this is the last line of defense. If a match hasnt been determined yet it is likely a side item stuck in the toppings section 
+                // or no keywords { NO ADD ON } were matched. In this instance 
+                if (!changeFound) {
+                    if (currChange.match(/\d/)) {
+                        customerOrder.sideItems.push(currChange);
+                    } else {
+                        customerSub.notes += "\n Lunchdrop Legend could not classify the following: " + currChange;
+                    }
+                }
+            }
+        }
+    }
 
     function logFormattedText(pastedText) {
         console.log("called twice")
@@ -67,13 +380,16 @@ function App() {
           
           for (let j = 0; j < orderItems.length; j++) {
             let currOrderItem = orderItems[j];
-            console.log(currOrderItem.innerText)
+            let textLength = 0;
+            let isSideItem = false;
+            console.log(currOrderItem.innerText, currOrderItem)
             let newSub = {
                 subNumber: 0,
                 subSize: "",
                 subBread: "",
                 isColdSub: true,
-                toppings: [],
+                subtractions: [],
+                additions: [],
                 notes: "",
             };
             
@@ -81,9 +397,9 @@ function App() {
             // Sub Number, Size
   
             if (currOrderItem.querySelectorAll("span")[0]) {
-              let isSideItem = false;
               let safetyCheck = true;
               let breadStats = currOrderItem.querySelectorAll("span")[0].innerText.toLowerCase();
+              textLength = breadStats.length;
               breadStats = breadStats.split(" ");
   
               for (let k = 0; k < breadStats.length; k++) {
@@ -149,8 +465,6 @@ function App() {
                     newOrder.subError = true;
                     newOrder.raw = element.innerText;
                     continue;
-                } else if (!isSideItem){
-                  newOrder.subs.push(newSub);
                 }
 
               } else {
@@ -160,20 +474,25 @@ function App() {
               continue;
             }
 
-            
-  
-            // Notes 
-  
-            // if (element.querySelector("em")) {
-            //   newOrder.notes = element.querySelector("em").innerText;
-            //   console.log(newOrder)
-            // } 
+            // sub toppings, size, and notes parsing
+
+            let bodyText = currOrderItem.innerText.slice(textLength)
+
+            if (!isSideItem) {
+                bodyOfOrderParse(currOrderItem, bodyText, newOrder, newSub);
+                newOrder.subs.push(newSub);
+            }
 
           }
+
           orders.push(newOrder);
         }
-        console.log(orders)
-      }
+        orders.forEach(order => {
+            console.log(order.orderName)
+            console.log(order.subs)
+            console.log(order.sideItems)
+        })
+    }
 
   return (
     <div className="App">
