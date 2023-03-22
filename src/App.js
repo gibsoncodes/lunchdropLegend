@@ -1,6 +1,7 @@
 import logo from './logo.svg';
 import './App.css';
 import {useState} from "react"
+import FormattedSubs from './FormattedSubs';
 
 function App() {
 
@@ -14,22 +15,22 @@ function App() {
         hotSubs: [16, 17, 19, 26, 31, 42, 43, 44, 55, 56, 64, 65, 66],
 
         hotSubStandards: {
-            16: ["onion", "pepper"],
-            17: ["onion", "pepper"],
-            19: ["barbecue", "bbq", "sauce"],
-            26: ["lettuce", "tomato", "ranch", "bacon"],
-            31: ["lettuce", "tomato", "mayo"],
-            42: ["onion", "pepper", "mayo"],
-            43: ["onion", "pepper", "mayo"],
-            44: ["lettuce", "tomato", "blue", "buffalo", "franks", "hot sauce"],
-            55: ["onion", "green pepper", "sweet pepper", "jalapeno", "mushroom"],
-            56: ["onion", "green pepper", "sweet pepper", "jalapeno", "mushroom"],
-            64: ["onion", "pepper"],
-            65: ["onion", "pepper", "mushroom", "port"],
-            66: ["onion", "pepper", "mushroom", "port"],
+            16: [["onion", "- grl o's"], ["pepper", "- grl peps"]],
+            17: [["onion", "- grl o's"], ["pepper", "- grl peps"]],
+            19: [["barbecue", "- bbq"], ["bbq", "- bbq"], ["sauce", "- bbq"]],
+            26: [["lettuce", "- lettuce"], ["tomato", "- tomato"], ["ranch", "- ranch"], ["bacon", "- bacon"]],
+            31: [["lettuce", "- lettuce"], ["tomato", "- tomato"], ["mayo", "- mayo"]],
+            42: [["onion", "- grl o's"], ["pepper", "- grl peps"], ["mayo", "- chp mayo"]],
+            43: [["onion", "- grl o's"], ["pepper", "- grl peps"], ["mayo", "- chp mayo"]],
+            44: [["lettuce", "- lettuce"], ["tomato", "- tomato"], ["blue", "- blue chz"], ["buffalo", "- buff sauce"], ["franks", "- buff sauce"], ["hot sauce", "- buff sauce"]],
+            55: [["onion", "- grl o's"], ["green pepper", "- grl peps"], ["sweet pepper", "-grl peps"], ["jalapeno", "- jal peps"], ["mushroom", "- mush"]],
+            56: [["onion", "- grl o's"], ["green pepper", "- grl peps"], ["sweet pepper", "-grl peps"], ["jalapeno", "- jal peps"], ["mushroom", "- mush"]],
+            64: [["onion", "- grl o's"], ["pepper", "- green peps"]],
+            65: [["onion", "- grl o's"], ["pepper", "- grl peps"], ["mushroom", "- port"], ["port", "- port"]],
+            66: [["onion", "- grl o's"], ["pepper", "- grl peps"], ["mushroom", "- port"], ["port", "- port"]],
         },
         mikesWay: ["onion", "lettuce", "tomato", "vinegar", "oil", "oregano", "salt"],
-        extras: ["mayo", "pickle", "banana pepper", "jalapeno pepper", "cherry pepper relish", "brown mustard", "yellow mustard", "spicy mustard", "honey mustard", "mustard"],
+        extras: ["chipot", "chipol", "mayo", "pickle", "banana pepper", "jalapeno pepper", "jalapenos", "cherry pepper relish", "brown mustard", "yellow mustard", "spicy mustard", "honey mustard", "mustard"],
         cheese: ["provolone", "swiss", "american", "cheese"],
         breadtype: ["white", "wheat", "rosemary", "parmesan", "spinach", "gluten"]
     }
@@ -118,8 +119,8 @@ function App() {
 
         // checking basics. onions peppers etc...
         for (let i = 0; i < hsub.length; i++) {
-            if (currChange.includes(hsub[i])) {
-                customerSub.subtractions.push(hsub[i])
+            if (currChange.includes(hsub[i][0])) {
+                customerSub.subtractions.push(hsub[i][1])
                 changeFound = true;
                 break;
             }
@@ -171,11 +172,7 @@ function App() {
         if (!changeFound) {
             for (let j = 0; j < jmSubsLegend.cheese; j++) {
                 if (currChange.includes(jmSubsLegend.cheese[j])) {
-                    if (currSubNumber == 1 || currSubNumber == 10) {
-                        customerSub.additions.push("cheese");
-                    } else {
-                        customerSub.additions.push("extra cheese");
-                    }
+                    customerSub.additions.push("extra cheese");
                     changeFound = true;
                     break;
                 }
@@ -201,6 +198,7 @@ function App() {
         // cleanup -- occurs when a misspelled, unknown or uncommon subtraction is supplied
         // this text will be moved to the notes section and left for crewmate to decipher.
         if (!changeFound) {
+            console.log(currChange)
             if (currChange.match(/\d/)) {
                 customerOrder.sideItems.push(currChange);
             } else {
@@ -214,10 +212,11 @@ function App() {
         let changeFound = false;
         let hsub = jmSubsLegend.hotSubStandards[currSubNumber];
 
+        
         // checking basics. onions peppers etc...
         for (let i = 0; i < hsub.length; i++) {
-            if (currChange.includes(hsub[i])) {
-                if (!currChange.includes("bacon") || !currChange.includes("port")) {
+            if (currChange.includes(hsub[i][0])) {
+                if (currChange.includes("bacon") === false && currChange.includes("port") === false) {
                     changeFound = true;
                 } 
                 //  else irrelevant addition -- moving on
@@ -303,7 +302,7 @@ function App() {
         let xtra = jmSubsLegend.extras;
         for (let i = 0; i < toParse.length; i++) {
             let currChange = toParse[i];
-            if (currChange.includes("no")) {
+            if (currChange.includes("no") && !currChange.match(/\d/)) {
                 if (customerSub.isColdSub) {
                     coldSubSubtractionParse(currChange, customerSub, mw, currSubNumber);
                 } else {
@@ -492,11 +491,13 @@ function App() {
             console.log(order.subs)
             console.log(order.sideItems)
         })
+        setRawSubs(orders)
     }
 
   return (
     <div className="App">
         <input></input>
+        <FormattedSubs orders={rawSubs} subLegend={jmSubsLegend} />
     </div>
   );
 }

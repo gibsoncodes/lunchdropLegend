@@ -36,3 +36,46 @@
     transform: rotate(360deg);
   }
 }
+
+ul {
+    list-style: none;
+}
+
+/* .all-pages-outer {
+    display: flex;
+    flex-direction: row;
+} */
+
+.colds-printed-container {
+    /* width: 2550px;
+    height: 3300px; */
+}
+
+.colds-page-header {
+    float: left;
+    padding-left: 10px;
+}
+
+.colds-grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+.ticket-outer {
+    width: 100%;
+    padding: 20px;
+}
+
+.ticket-sub-notes {
+    font-style: italic;
+}
+
+/* .ticket-name {
+
+} */
+
+/* .ticket-sub {
+
+} */
+
