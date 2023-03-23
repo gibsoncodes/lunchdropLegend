@@ -62,8 +62,16 @@ ul {
     grid-template-columns: 1fr 1fr 1fr;
 }
 
+.ticket-sub {
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    text-align: left;
+    border-bottom: black dotted 2px;
+}
+
 .ticket-outer {
-    width: 100%;
+    /* width: 100%; */
     padding: 20px;
 }
 
@@ -71,11 +79,25 @@ ul {
     font-style: italic;
 }
 
-/* .ticket-name {
+.ticket-sub-size {
+    padding-left: 15px;
+}
 
+/* .ticket-toppings-container {
+   
+    text-align: left;
 } */
 
-/* .ticket-sub {
+.mw-text {
+    padding-bottom: 7px;
+}
 
-} */
+.ticket-name {
+    text-align: left;
+}
+
+.ticket-sub-bread {
+    padding-bottom: 0px;
+    margin-bottom: 0px;
+}
 

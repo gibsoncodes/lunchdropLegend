@@ -5,85 +5,85 @@ const FormattedSubs = ({orders, subLegend}) => {
     console.log(subLegend)
 
     const subAdditionsHelper = (order) => {
-        console.log(order.additions)
         let toAdd = [];
+        let xtraCheeseAndMeat = [];
         for (let i = 0; i < order.additions.length; i++) {
             switch (order.additions[i]) {
 
                 case 'extra cheese':
-                    toAdd.push("x cheese");
+                    xtraCheeseAndMeat.push("x cheese");
                     break;
 
                 case 'extra meat':
-                    toAdd.push("x meat")
+                    xtraCheeseAndMeat.push("x meat")
                     break;
 
                 case 'pickle':
-                    toAdd.push("+ pickles");
+                    toAdd.push(["+ pickles", 1]);
                     break;
 
                 case 'banana pepper':
-                    toAdd.push("+ ban peps");
+                    toAdd.push(["+ ban peps", 2]);
                     break;
 
                 case 'jalapeno pepper':
-                    toAdd.push("+ jal peps");
+                    toAdd.push(["+ jal peps", 3]);
                     break;
 
                 case 'jalapenos': 
-                    toAdd.push("+ jal peps")
+                    toAdd.push(["+ jal peps", 3])
                     break;
 
                 case 'mayo':
                     if (order.subNumber != 1) {
-                        toAdd.push("+ mayo")
+                        toAdd.push(["+ mayo", 4])
                     }
                     break;
                 
                 case 'cherry pepper relish':
-                    toAdd.push("+ cpr");
+                    toAdd.push(["+ cpr", 6]);
                     break;
                 
                 case 'bacon':
                     if (order.subNumber == 9 || order.subNumber == 8 || order.subNumber == 26) {
-                        toAdd.push("+ bacon");
-                        toAdd.push("x bacon");
+                        toAdd.push(["+ bacon", 5]);
+                        toAdd.push(["x bacon", 5]);
                     } else if (order.subNumber == 1) {
-                        toAdd.push("x bacon");
+                        toAdd.push(["x bacon", 5]);
                     } else {
-                        toAdd.push("+ bacon");
+                        toAdd.push(["+ bacon", 5]);
                     }
                     break;
 
                 case 'chipol':
-                    toAdd.push("+ chp mayo");
+                    toAdd.push(["+ chp mayo", 10]);
                     break;
 
                 case "chipot":
-                    toAdd.push("+ chp mayo");
+                    toAdd.push(["+ chp mayo", 10]);
                     break;
 
                 case 'mustard': 
-                    toAdd.push("+ yel must");
+                    toAdd.push(["+ yel must", 7]);
                     break;
 
                 case 'brown mustard':
-                    toAdd.push("+ brown must");
+                    toAdd.push(["+ brown must", 8]);
                     break;
                 
                 case 'spicy mustard':
-                    toAdd.push("+ brown must");
+                    toAdd.push(["+ brown must", 8]);
                     break;
 
                 case 'honey mustard':
-                    toAdd.push("+ honey must");
+                    toAdd.push(["+ honey must", 9]);
                     break;
 
                 case 'port': 
                     if (order.subNumber == 64 || order.subNumber == 65 || order.subNumber == 66) {
-                        toAdd.push("x port");
+                        toAdd.push(["x port", 11]);
                     } else {
-                        toAdd.push("+ port")
+                        toAdd.push(["+ port", 11])
                     }
                     break;
 
@@ -92,17 +92,29 @@ const FormattedSubs = ({orders, subLegend}) => {
 
             }
         }
-        return (
-            <React.Fragment>
-                {toAdd.map(elem => {
-                    return <li className='topping-text'>{elem}</li>
-                })}
-            </React.Fragment>
+        toAdd.sort((a,b) => {
+            return a[1] - b[1];
+        })
+
+        toAdd = toAdd.map(item => {
+            return item[0].toUpperCase();
+        })
+
+        let addedToppings = (
+
+                <React.Fragment>
+                    {toAdd.map(elem => {
+                        return <li className='topping-text'>{elem}</li>
+                    })}
+                </React.Fragment>
         )
+
+        return {addedToppings: addedToppings, xtraCheeseAndMeat: xtraCheeseAndMeat};
     }
 
     const formatColdSubs = (order) => {
-        let plus;
+
+        let plus = subAdditionsHelper(order);
         let minus;
 
         // subtractions 
@@ -111,43 +123,61 @@ const FormattedSubs = ({orders, subLegend}) => {
             let natural = ["lettuce", "tomato", "mayo"];
             for (let i = 0; i < order.subtractions.length; i++) {
                 if (order.subtractions[i] === "lettuce") {
-                    natural.splice(i, 1)
+                    natural.splice(natural.indexOf("lettuce"), 1)
                 } else if (order.subtractions[i] === "tomato") {
-                    natural.splice(i, 1)
+                    natural.splice(natural.indexOf("tomato"), 1)
                 } else if (order.subtractions[i] === "mayo") {
-                    natural.splice(i, 1)
+                    natural.splice(natural.indexOf("mayo"), 1)
                 }
             }
             minus = (
                 <React.Fragment>
-                    <li className='mw-text'>just:</li>
+                    <li className='mw-text'>Just:</li>
+                    {plus.xtraCheeseAndMeat.length > 0 && 
+                     plus.xtraCheeseAndMeat.map(elem => {
+                        return (<li className='topping-text'>{elem.toUpperCase()}</li>);
+                     })}
                     {natural.map(elem => {
-                        if (elem === "mayo") elem = "+" + elem;
-                        return (<li className='topping-text'>{elem}</li>);
+                        if (elem === "mayo") elem = "+ mayo";
+                        return (<li className='topping-text'>{elem.toUpperCase()}</li>);
                     })}
                 </React.Fragment>
             );
+
+
         } else {
             let mikesW = [...subLegend.mikesWay];
             let removed = [];
+            let count = 0;
             for (let i = 0; i < order.subtractions.length; i++) {
                 let subtractedItem = order.subtractions[i];
                 for (let j = 0; j < mikesW.length; j++) {
                     if (subtractedItem === mikesW[j]) {
                         removed.push(mikesW[j]);
                         mikesW.splice(j, 1);
+                        count++;
                         break;
                     }
                 }
+                if (subtractedItem === "cheese") {
+                    removed.unshift("cheese");
+                    mikesW.unshift("cheese");
+                    count++;
+                }
             }
+            if (count !== order.subtractions.length) console.error("not all items subtracted")
 
             // keeping in style with online orders
             if (removed.length > 3) {
                 minus = (
                     <React.Fragment>
-                        <li className='mw-text'>just:</li>
+                        <li className='mw-text'>Just:</li>
+                        {plus.xtraCheeseAndMeat.length > 0 && 
+                         plus.xtraCheeseAndMeat.map(elem => {
+                            return (<li className='topping-text'>{elem.toUpperCase()}</li>);
+                        })}
                         {mikesW.map(elem => {
-                            return (<li className='topping-text'>{elem}</li>);
+                            return (<li className='topping-text'>{elem.toUpperCase()}</li>);
                         })}
                     </React.Fragment>
                 );
@@ -155,26 +185,25 @@ const FormattedSubs = ({orders, subLegend}) => {
                 minus = (
                     <React.Fragment>
                         <li className='mw-text'>Mike's Way</li>
+                        {plus.xtraCheeseAndMeat.length > 0 && 
+                         plus.xtraCheeseAndMeat.map(elem => {
+                            return (<li className='topping-text'>{elem.toUpperCase()}</li>);
+                        })}
                         {removed.map(elem => {
-                            return <li className='topping-text'>-{elem}</li>
+                            return <li className='topping-text'>- {elem.toUpperCase()}</li>
                         })}
                     </React.Fragment>
                 );
             }
 
-        // ["mayo", "pickle", "banana pepper", "jalapeno pepper", "cherry pepper relish", "brown mustard", "yellow mustard", "spicy mustard", "honey mustard", "mustard"]
-        // ["pickles", "ban peps", "jal peps", "mayo", "cpr", "yel must", "brown must", "honey must"];
-
-            // additions time O.O
-            plus = subAdditionsHelper(order);
         }
 
         const subSection = (
             <div className='ticket-sub'>
-                <p className='ticket-sub-bread'><span className='ticket-sub-size'>{order.subSize}</span>{order.breadType} #{order.subNumber}</p>
+                <p className='ticket-sub-bread'>{order.subSize}<span className='ticket-sub-size'>{order.subBread.toUpperCase()}</span> #{order.subNumber}</p>
                 <ul className='ticket-toppings-container'>
                     {minus}
-                    {plus}
+                    {plus.addedToppings}
                 </ul>
                 <p className='ticket-sub-notes'>{order.notes}</p>
             </div>
@@ -184,22 +213,28 @@ const FormattedSubs = ({orders, subLegend}) => {
     }
 
     const formatHotSubs = (order, subLegend) => {
+
+        let plus = subAdditionsHelper(order);
+
         let minus = (
             <React.Fragment>
+                {plus.xtraCheeseAndMeat.length > 0 && 
+                 plus.xtraCheeseAndMeat.map(elem => {
+                    return (<li className='topping-text'>{elem.toUpperCase()}</li>);
+                })}
                 {order.subtractions.map(elem => {
-                    return <li className='topping-text'>{elem}</li>
+                    return <li className='topping-text'>{elem.toUpperCase()}</li>
                 })}
             </React.Fragment>
         )
 
-        let plus = subAdditionsHelper(order);
 
         const subSection = (
             <div className='ticket-sub'>
-                <p className='ticket-sub-bread'><span className='ticket-sub-size'>{order.subSize}</span>{order.breadType} #{order.subNumber}</p>
+                <p className='ticket-sub-bread'>{order.subSize}<span className='ticket-sub-size'>{order.subBread.toUpperCase()}</span> #{order.subNumber}</p>
                 <ul className='ticket-toppings-container'>
                     {minus}
-                    {plus}
+                    {plus.addedToppings}
                 </ul>
                 <p className='ticket-sub-notes'>{order.notes}</p>
             </div>
@@ -212,7 +247,6 @@ const FormattedSubs = ({orders, subLegend}) => {
     const formatSideItems = (order) => {
         return (
             <div className='ticket-sub'>
-                <h4 className='sides-header'>SIDES</h4>
                 {order.sideItems.map((item, index) => {
                     return <p key={order.orderName + "sides" + index} className='sides-text'>{item}</p>
                 })}
