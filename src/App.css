@@ -1,5 +1,8 @@
 .App {
   text-align: center;
+  width: 100%;
+  height: 100%;
+  background-color: white;
 }
 
 .App-logo {
@@ -64,6 +67,7 @@ ul {
 
 .ticket-sub {
     display: flex;
+    /* flex-wrap: wrap; */
     flex-direction: column;
     align-content: center;
     text-align: left;
@@ -72,7 +76,7 @@ ul {
 
 .ticket-outer {
     /* width: 100%; */
-    padding: 20px;
+    padding: 8px 20px;
 }
 
 .ticket-sub-notes {
@@ -101,3 +105,34 @@ ul {
     margin-bottom: 0px;
 }
 
+.foo-container-hide {
+    position: absolute;
+    z-index: -10;
+    visibility: hidden;
+}
+
+/* printing section */
+
+.page {
+    width: 210mm;
+    height: 297mm;
+    min-height: 297mm;
+    margin: 1cm;
+    border: solid black 1px;
+    background: white;
+}
+/* 
+@page {
+    size: A4;
+    margin: 0;
+}
+
+@media print {
+    .page {
+        margin: 0;
+        width: initial;
+        min-height: initial;
+        background: initial;
+        page-break-after: always;
+    }
+} */

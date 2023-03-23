@@ -1,8 +1,19 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import './App.css';
+import { useState } from 'react';
+import MeasureElement from './MeasureElement';
 
 const FormattedSubs = ({orders, subLegend}) => {
     console.log(subLegend)
+
+    const [currMeasuredElem, setCurrMeasuredElem] = useState();
+    const [heightsOfTickets, setHeightsOfTickets] = useState([]);
+
+    let ticketIds = [];
+
+    // useEffect(() => {
+    //     console.log(heightsOfTickets)
+    // }, [heightsOfTickets])
 
     const subAdditionsHelper = (order) => {
         let toAdd = [];
@@ -212,6 +223,21 @@ const FormattedSubs = ({orders, subLegend}) => {
         return subSection;
     }
 
+    // const getPrintablePages = (ordersWithColdOnly, ordersWithHotOnly, ordersWithBoth) => {
+    //     let cPages = [];
+    //     let hPages = [];
+    //     let chPages = [];
+
+    //     let remainingHeight = 297;
+    //     let stripId = 0;
+    //     setCurrMeasuredElem(ordersWithColdOnly[1])
+    //     // for (let i = 0; i < ordersWithColdOnly.length; i++) {
+    //     // }
+    //     return {cPages: cPages, hPages: hPages, chPages: chPages};
+    // }
+
+    
+
     const formatHotSubs = (order, subLegend) => {
 
         let plus = subAdditionsHelper(order);
@@ -278,8 +304,10 @@ const FormattedSubs = ({orders, subLegend}) => {
                 }
             }
             
+            let ticketId = name + i + "ticket";
+
             const wholeTicket = (
-                <div className='ticket-outer'>
+                <div id={ticketId} className='ticket-outer'>
                     <h4 className='ticket-name'>{name}</h4>
                     {colds}
                     {hots}
@@ -297,16 +325,19 @@ const FormattedSubs = ({orders, subLegend}) => {
             }
         }
 
+        // const printablePages = getPrintablePages(ordersWithColdOnly, ordersWithHotOnly, ordersWithBoth);
+
         const coldSubPage = (
-            <div className='colds-printed-container'>
+            <div className='page'>
                 <h2 className='colds-page-header'>Cold Subs</h2>
                 <div className='colds-grid'>
                     {ordersWithColdOnly}
                 </div>
             </div>
         )
+
         const hotSubPage = (
-            <div className='colds-printed-container'>
+            <div className='page'>
                 <h2 className='colds-page-header'>Hot Subs</h2>
                 <div className='colds-grid'>
                     {ordersWithHotOnly}
@@ -314,7 +345,7 @@ const FormattedSubs = ({orders, subLegend}) => {
             </div>
         )
         const bothSubPage = (
-            <div className='colds-printed-container'>
+            <div className='page'>
                 <h2 className='colds-page-header'>Cold + Hot Orders</h2>
                 <div className='colds-grid'>
                     {ordersWithBoth}
@@ -323,9 +354,11 @@ const FormattedSubs = ({orders, subLegend}) => {
         )
         const allPages = (
             <div className='all-pages-outer'>
-                {coldSubPage}
-                {hotSubPage}
-                {bothSubPage}
+                <div className='foo-container-hide'>
+                    {ordersWithColdOnly}
+                    {ordersWithHotOnly}
+                    {ordersWithBoth}
+                </div>
             </div>
         )
 
@@ -334,9 +367,17 @@ const FormattedSubs = ({orders, subLegend}) => {
     }
     let main = formatSubOrders(orders);
 
+    useEffect(() => {
+        for (let i = 0; i < ticketIds.length; i++) {
+            let elem = document.getElementById(ticketIds[i]);
+            
+        }
+    })
+
   return (
     <div>
         {main}
+        <h1>poopy diapers</h1>
     </div>
   )
 }
