@@ -1,7 +1,11 @@
 import logo from './logo.svg';
 import './App.css';
-import {useState} from "react"
+import {useEffect, useState, useTransition} from "react"
 import FormattedSubs from './FormattedSubs';
+
+import jmBottle from "./assets/jersey-mikes_bottle.png";
+import jmHat from "./assets/jersey-mikes_cap.png";
+import eyes from "./assets/jersey-mikes_eye.png";
 
 function App() {
 
@@ -46,12 +50,64 @@ function App() {
     }
 
     const [rawSubs, setRawSubs] = useState([]);
-
+    const [vinnie, setVinnie] = useState({hat: {}, bottle: {}, eyes: {}, text: {}, vinegar: {}})
+    const [jumbled, setJumbled] = useState("");
+    const [animationState, setAnimationState] = useState("unset")
+    const [vinnieTalk, setVinnieTalk] = useState("")
     document.addEventListener('paste', (e) => {
         e.preventDefault();
         let pasted = e.clipboardData.getData("text/html");
+        let txt = e.clipboardData.getData("text");
+        let forJumbled = txt.split(" ");
+        setJumbled(forJumbled)
         logFormattedText(pasted)
+        setAnimationState("begin");
     })
+
+    useEffect(() => {
+        if (animationState === "begin") {
+            setAnimationState("in progress")
+            setVinnie({...vinnie, text: {animation: "text-move 2s", animationFillMode: "forwards"}})
+            setTimeout(() => {
+                setVinnie(prev => {
+                    return {...prev, bottle: {animation: "awakenBottle .5s", "animation-fill-mode": "forwards"}, hat: {animation: "awakenHat .5s", animationFillMode: "forwards"}}
+                })
+            }, 2000)
+            setTimeout(() => {
+                setAnimationState("add eyes")
+                setVinnieTalk("DAMN SON WHERED YOU FIND THIS!")
+            }, 2500)
+            setTimeout(() => {
+                setVinnieTalk("I MEAN! HEY KIDS... YOU GOT A LUNCHDROP EH.")
+            }, 6000)
+            setTimeout(() => {
+                setVinnieTalk("YOU JUST LEAVE THIS TO OL' VINNIE HERE");
+                setVinnie(prev => {
+                    return {...prev,  hat: {animation: "hatSpin 2s", animationFillMode: "forwards"}}
+                })
+            }, 10000)
+            setTimeout(() => {
+                setVinnie(prev => {
+                    return {...prev, vinegar: {animation: "juicedVin 6s", animationFillMode: "forwards", display: "block"}, bottle: {animation: "juiced 6s", animationFillMode: "forwards"}, text: {animation: "text-purple 8s", "animation-fill-mode": "forwards", top: "80%"}, hat: {display: "none"}, eyes: {left: {animation: "juicedEyesLeft 6s", animationFillMode: "forwards"}, right: {animation: "juicedEyesRight 6s", animationFillMode: "forwards"}}}
+                })
+            }, 12000)
+            setTimeout(() => {
+                setVinnieTalk("AHH MUCH BETTER KIDS");
+                setVinnie(prev => {
+                    return {...prev, vinegar: {display: "none"}}
+                })
+                setAnimationState("complete")
+            }, 20000)
+            setTimeout(() => {
+                setVinnieTalk("$#%$ MY @#$@#$ HAT");
+                triggerPrint();
+            }, 22000)
+        }
+    }, [animationState])
+
+    const triggerPrint = () => {
+        window.print();
+    }
 
     const coldSubSubtractionParse = (currChange, customerSub, mw, currSubNumber) => {
         let changeFound = false;
@@ -86,11 +142,9 @@ function App() {
         }
         // checking cheese
         if (!changeFound) {
-            console.log("keyword")
             for (let j = 0; j < jmSubsLegend.cheese.length; j++) {
                 if (currChange.includes(jmSubsLegend.cheese[j])) {
                     if (currSubNumber != 1 && currSubNumber != 10) {
-                        console.log(currChange, customerSub.subNumber, "keyword")
                         customerSub.subtractions.push("cheese");
                     }
                     changeFound = true;
@@ -129,7 +183,7 @@ function App() {
 
         // checking cheese
         if (!changeFound) {
-            for (let j = 0; j < jmSubsLegend.cheese; j++) {
+            for (let j = 0; j < jmSubsLegend.cheese.length; j++) {
                 if (currChange.includes(jmSubsLegend.cheese[j])) {
                     customerSub.subtractions.push("cheese");
                     changeFound = true;
@@ -171,9 +225,11 @@ function App() {
 
         // checking cheese
         if (!changeFound) {
-            for (let j = 0; j < jmSubsLegend.cheese; j++) {
+            for (let j = 0; j < jmSubsLegend.cheese.length; j++) {
                 if (currChange.includes(jmSubsLegend.cheese[j])) {
                     customerSub.additions.push("extra cheese");
+                    customerSub.upCharges.push("extra cheese");
+
                     changeFound = true;
                     break;
                 }
@@ -184,6 +240,8 @@ function App() {
         if (!changeFound) {
             if (currChange.includes("bacon")) {
                 customerSub.additions.push("bacon");
+                customerSub.upCharges.push("extra bacon");
+
                 changeFound = true;
             }
         }
@@ -192,6 +250,8 @@ function App() {
         if (!changeFound) {
             if (currChange.includes("meat")) {
                 customerSub.additions.push("extra meat");
+                customerSub.upCharges.push("extra meat");
+
                 changeFound = true;
             }
         }
@@ -199,7 +259,6 @@ function App() {
         // cleanup -- occurs when a misspelled, unknown or uncommon subtraction is supplied
         // this text will be moved to the notes section and left for crewmate to decipher.
         if (!changeFound) {
-            console.log(currChange)
             if (currChange.match(/\d/)) {
                 customerOrder.sideItems.push(currChange);
             } else {
@@ -240,6 +299,7 @@ function App() {
             for (let j = 0; j < jmSubsLegend.cheese.length; j++) {
                 if (currChange.includes(jmSubsLegend.cheese[j])) {
                     customerSub.additions.push("extra cheese");
+                    customerSub.upCharges.push("extra cheese");
                     changeFound = true;
                     break;
                 }
@@ -250,6 +310,7 @@ function App() {
         if (!changeFound) {
             if (currChange.includes("bacon")) {
                 customerSub.additions.push("bacon");
+                customerSub.upCharges.push("extra bacon");
                 changeFound = true;
             }
         }
@@ -258,6 +319,7 @@ function App() {
         if (!changeFound) {
             if (currChange.includes("meat")) {
                 customerSub.additions.push("extra meat");
+                customerSub.upCharges.push("extra meat");
                 changeFound = true;
             }
         }
@@ -266,6 +328,7 @@ function App() {
         if (!changeFound) {
             if (currChange.includes("port")) {
                 customerSub.additions.push("port");
+                customerSub.upCharges.push("extra port");
                 changeFound = true;
             }
         }
@@ -308,7 +371,6 @@ function App() {
                 continue;
             }
 
-
             if (currChange.includes("add")) {
                 if (customerSub.isColdSub) {
                     coldSubAdditionParse(currChange, customerSub, mw, xtra, currSubNumber, customerOrder);
@@ -316,10 +378,8 @@ function App() {
                     hotSubAdditionParse(currChange, customerSub, currSubNumber, xtra, customerOrder)
                 }
             } 
-            // there is a case where jalapeno triggers this call, by checking add first we ensure that it is not falsely subtracted
-            // then by ensuring no numbers are present we handle the lunchdrop favorite of throwing bags of chips into the sub section.
             
-            else if (currChange.includes("no") && !currChange.match(/\d/)) {
+            else if (currChange.includes("no")) {
                 if (customerSub.isColdSub) {
                     coldSubSubtractionParse(currChange, customerSub, mw, currSubNumber);
                 } else {
@@ -340,7 +400,7 @@ function App() {
                 }
                 
                 // this is the last line of defense. If a match hasnt been determined yet it is likely a side item stuck in the toppings section 
-                // or no keywords { NO ADD } were matched. 
+                // or no keywords { NO, ADD } were matched. 
                 if (!changeFound) {
 
                     // checks if any extras were in sub section via number match
@@ -402,47 +462,65 @@ function App() {
     }
 
     function logFormattedText(pastedText) {
-        console.log("called twice")
         const orders = [];
         let htmlElement = document.createElement('div');
         htmlElement.id = "mydiv"
         htmlElement.innerHTML = pastedText;
-        
-        let formattedElements = htmlElement.querySelectorAll('#mydiv > ul > li');
-      
+        let formattedElements = htmlElement.querySelectorAll('#mydiv > table > tbody > tr > td');
         for (let i = 0; i < formattedElements.length; i++) {
           let element = formattedElements[i];
           let currId = `order${i+1}`;
           element.id = currId;
-        //   console.log(element.innerHTML)
+          let dontPush = false;
           
           let newOrder = {
             orderName: "",
             subs: [],
             sideItems: [],
+            lunchDropName: "",
           };
-          console.log(newOrder)
           let subError = false;
 
           // Order Name
-          if (element.querySelector("strong")) {
-            newOrder.orderName = element.querySelector("strong").innerText;
-          } else {
+          if (element.querySelector("table > tbody > tr > td")) {
+            let elm = element.querySelector("table > tbody > tr > td");
+            let child = elm.querySelectorAll("span");
+            child.forEach(chi => {
+                elm.removeChild(chi)
+            })
+            let thisName = elm.innerText;
+            let matches = orders.filter(order => {
+                return order.orderName === thisName;
+            })
+            if (matches[0]) {
+                dontPush = true;
+                newOrder = matches[0];
+            }
+            newOrder.orderName = elm.innerText;
+            if (element.querySelectorAll("table > tbody > tr > td")[1]) {
+                let elm2 = element.querySelectorAll("table > tbody > tr > td")[1];
+                newOrder.lunchDropName = elm2.querySelector("span").innerText;
+            }
+            
+          }
+          if (newOrder.orderName.length === 0 && newOrder.lunchDropName.length === 0) {
             console.log("error")
             newOrder.subError = true;
             newOrder.raw = element.innerText;
             continue;
+          } else {
+            let removedChild = element.querySelector("table");
+            element.removeChild(removedChild);
           }
 
           // loop to see if there are multiple subs and or side items 
 
-          let orderItems = element.querySelectorAll(`#${currId} > ul > li`);
+        //   let orderItems = element.querySelectorAll(`#${currId} > ul > li`);
           
-          for (let j = 0; j < orderItems.length; j++) {
-            let currOrderItem = orderItems[j];
+        //   for (let j = 0; j < orderItems.length; j++) {
+            let currOrderItem = element;
             let textLength = 0;
             let isSideItem = false;
-            console.log(currOrderItem.innerText, currOrderItem)
             let newSub = {
                 subNumber: 0,
                 subSize: "",
@@ -451,6 +529,7 @@ function App() {
                 subtractions: [],
                 additions: [],
                 notes: "",
+                upCharges: [],
             };
             
 
@@ -464,8 +543,10 @@ function App() {
   
               for (let k = 0; k < breadStats.length; k++) {
                   let curr = breadStats[k];
+                //   console.log(curr)
   
                   if (newSub.subSize && newSub.subNumber !== 0) {
+                    console.log("weird breK", curr)
                       break;
                   }
   
@@ -473,7 +554,6 @@ function App() {
   
                   if (!newSub.subSize) {
                       let updated = true;
-                      
                       if (curr.includes("regular")) {
                           newSub.subSize = "R";
                       } else if (curr.includes("giant")) {
@@ -484,12 +564,19 @@ function App() {
                           newSub.subSize = "M";
                       } else if (curr.includes("wrap")) {
                           newSub.subSize = "WR";
-                      } else if (element.innerText.toLowerCase().includes("wrap")) {
-                          newSub.subSize = "WR";
+                      } else if (curr.includes("tub")) {
+                        newSub.subSize = "TUB";
+                      } else if (curr.includes("bowl")) {
+                        newSub.subSize = "TUB";
+                      } else if (curr.includes("sub")) {
+                        if (breadStats[3].includes("bowl") || breadStats[3].includes("tub")) {
+                            newSub.subSize = "TUB";
+                        } else {
+                            updated = false;
+                        }
                       } else {
                         updated = false;
                       }
-
                       if (updated) {
                         continue;
                       }
@@ -498,10 +585,10 @@ function App() {
                   //  number
                   if (newSub.subNumber === 0) {
                       if (curr[0] === "#") {
-                          newSub.subNumber = curr.slice(1);
+                          newSub.subNumber = Number(curr.slice(1));
                           continue;
                       } else if (curr[0].match(/\d/)) {
-                          newSub.subNumber = curr.slice(0, 2);
+                          newSub.subNumber = Number(curr.slice(0, 2));
                           continue;
                       }
                   } 
@@ -510,14 +597,17 @@ function App() {
                     // checks if this is a side item
                     let sideCheck = sideItemsCheck(currOrderItem.innerText.toLowerCase());
                     if (sideCheck) {
-                      newOrder.sideItems.push(currOrderItem.innerText);
-                      isSideItem = true;
-                      break;
+                        isSideItem = true;
+                        newOrder.sideItems.push(currOrderItem.innerText);
+                        break;
                     } else {
                       safetyCheck = false;
                       break;
                     }
                   }
+                }
+                if (isSideItem) {
+                    continue;
                 }
 
                 if (!safetyCheck) {
@@ -539,27 +629,65 @@ function App() {
             let bodyText = currOrderItem.innerText.slice(textLength)
 
             if (!isSideItem) {
+                if (!newSub.subSize) {
+                    if (element.innerText.toLowerCase().includes("wrap")) {
+                        newSub.subSize = "WR";
+                    } else if (element.innerText.toLowerCase().includes("bowl") || element.innerText.toLowerCase().includes("tub")) {
+                        newSub.subSize = "TUB"
+                    } else {
+                        newSub.subSize = "R";
+                    }
+                }
                 bodyOfOrderParse(currOrderItem, bodyText, newOrder, newSub);
-                if (!newSub.subBread) newSub.subBread = "white";
+                if (!newSub.subBread) {
+                    if (newSub.subSize === "TUB") {
+                        newSub.subBread = "";
+                    }
+                    else newSub.subBread = "white";
+                }
                 newOrder.subs.push(newSub);
             }
 
-          }
+        //   }
 
-          orders.push(newOrder);
+          if (!dontPush) {
+              orders.push(newOrder);
+          }
         }
-        orders.forEach(order => {
-            console.log(order.orderName)
-            console.log(order.subs)
-            console.log(order.sideItems)
-        })
         setRawSubs(orders)
     }
 
   return (
     <div className="App">
-        <input></input>
-        <FormattedSubs orders={rawSubs} subLegend={jmSubsLegend} />
+        <div className='header'>
+            <h1 className='header-txt'>LUNCHDROP LEGEND</h1>
+        </div>
+        <div className='main'>
+            {animationState === "unset" && <div className='paste'>
+                <h2 className='paste-txt'>Paste Here</h2>
+                <input className='paste-input'></input>
+            </div>
+            }
+            <div className='vinnie-talk'>
+                <h1 className='vinnie-talk-txt'>{vinnieTalk}</h1>
+            </div>
+            {jumbled && animationState !== "complete" &&
+                <div className='jumbled-text' style={vinnie.text}>
+                    {jumbled.map(str => {
+                        let rand = ((Math.random()*24) * 15);
+                        let x = Math.random() * (1000 - 50);
+                        let y = Math.random() * (50 - 10);
+                        return <p style={{transform: `rotate(${rand}deg)`, left: `${x}px`, top: `${y}px`}} className='jumbled-item'>{str}</p>
+                    })}
+                </div>
+            }
+            <img id="jm-bottle" style={vinnie.bottle} src={jmBottle} alt='you betcha'></img>
+            <img id="jm-hat" style={vinnie.hat} src={jmHat} alt='you betcha'></img>
+            <div className='vinegar' style={vinnie.vinegar}></div>
+            {(animationState === "add eyes" || animationState === "complete")&& <img id="jm-eye-left" style={vinnie.eyes.left} src={eyes} alt='you betcha'></img>}
+            {(animationState === "add eyes" || animationState === "complete")&& <img id="jm-eye-right" style={vinnie.eyes.right} src={eyes} alt='you betcha'></img>}
+            <FormattedSubs orders={rawSubs} subLegend={jmSubsLegend} animationState={animationState}/>
+        </div>
     </div>
   );
 }

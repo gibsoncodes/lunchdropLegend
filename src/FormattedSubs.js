@@ -3,17 +3,17 @@ import './App.css';
 import { useState } from 'react';
 import MeasureElement from './MeasureElement';
 
-const FormattedSubs = ({orders, subLegend}) => {
-    console.log(subLegend)
+const FormattedSubs = ({orders, subLegend, animationState}) => {
 
-    const [currMeasuredElem, setCurrMeasuredElem] = useState();
-    const [heightsOfTickets, setHeightsOfTickets] = useState([]);
-
-    let ticketIds = [];
-
-    // useEffect(() => {
-    //     console.log(heightsOfTickets)
-    // }, [heightsOfTickets])
+    // rendering tickets hidden at first described here as foo ticketIds, this has been done to grab the height of the ticket and then rearrange to fit onto A4 paper.
+    const [fooTicketIds, setFooTicketIds] = useState([]);
+    const [realTicketIds, setRealTicketIds] = useState([]);
+    const [fooRendered, setFooRendered] = useState();
+    const [printedColdPages, setPrintedColdPages] = useState();
+    const [printedHotPages, setPrintedHotPages] = useState();
+    const [printedBothPages, setPrintedBothPages] = useState();
+    const [allNamesPage, setAllNamesPage] = useState();
+    const [registerPage, setRegisterPage] = useState();
 
     const subAdditionsHelper = (order) => {
         let toAdd = [];
@@ -223,21 +223,6 @@ const FormattedSubs = ({orders, subLegend}) => {
         return subSection;
     }
 
-    // const getPrintablePages = (ordersWithColdOnly, ordersWithHotOnly, ordersWithBoth) => {
-    //     let cPages = [];
-    //     let hPages = [];
-    //     let chPages = [];
-
-    //     let remainingHeight = 297;
-    //     let stripId = 0;
-    //     setCurrMeasuredElem(ordersWithColdOnly[1])
-    //     // for (let i = 0; i < ordersWithColdOnly.length; i++) {
-    //     // }
-    //     return {cPages: cPages, hPages: hPages, chPages: chPages};
-    // }
-
-    
-
     const formatHotSubs = (order, subLegend) => {
 
         let plus = subAdditionsHelper(order);
@@ -280,15 +265,41 @@ const FormattedSubs = ({orders, subLegend}) => {
         )
     }
 
+    const registerDataHandler = (order) => {
+        let thisSubs = [];
+        for (let i = 0; i < order.subs.length; i++) {
+            let sub = order.subs[i];
+            thisSubs.push(`${sub.subSize} ${sub.subNumber}`)
+            sub.upCharges.forEach(charge => {
+                thisSubs.push(`${charge}`)
+            })
+        }
+        for (let i = 0; i < order.sideItems.length; i++) {
+            thisSubs.push(order.sideItems[i]);
+        }
+        return (
+            <div className='register-sub'>
+                {thisSubs.map(item => {
+                    return <p>{item}</p>
+                })}
+            </div>
+        )
+    }
     // looper that formats all orders via helpers
-    const formatSubOrders = (orders) => {
+    const formatSubOrders = () => {
         let ordersWithHotOnly = [];
         let ordersWithColdOnly = [];
         let ordersWithBoth = [];
+        let localTickets = [];
+        let allNames = [];
+        let registerData = [];
 
         for (let i = 0; i < orders.length; i++) {
             let _ = orders[i];
+            registerData.push(registerDataHandler(_));
             let name = _.orderName;
+            let ldName = _.lunchDropName;
+            allNames.push(`${name} -- ${ldName}`);
             let colds = [];
             let hots = [];
             let sides;
@@ -308,53 +319,30 @@ const FormattedSubs = ({orders, subLegend}) => {
 
             const wholeTicket = (
                 <div id={ticketId} className='ticket-outer'>
-                    <h4 className='ticket-name'>{name}</h4>
+                    <h4 className='ticket-name'>{name} <span className='ldName'>{ldName}</span></h4>
                     {colds}
                     {hots}
                     {sides}
                 </div>
             )
+
             if (hots.length > 0) {
                 if (colds.length === 0) {
                     ordersWithHotOnly.push(wholeTicket);
+                    localTickets.push({type: "hot", id: ticketId, jsx: wholeTicket})
                 } else {
                     ordersWithBoth.push(wholeTicket);
+                    localTickets.push({type: "both", id: ticketId, jsx: wholeTicket})
                 }
             } else {
                 ordersWithColdOnly.push(wholeTicket);
+                localTickets.push({type: "cold", id: ticketId, jsx: wholeTicket})
             }
         }
 
-        // const printablePages = getPrintablePages(ordersWithColdOnly, ordersWithHotOnly, ordersWithBoth);
-
-        const coldSubPage = (
-            <div className='page'>
-                <h2 className='colds-page-header'>Cold Subs</h2>
-                <div className='colds-grid'>
-                    {ordersWithColdOnly}
-                </div>
-            </div>
-        )
-
-        const hotSubPage = (
-            <div className='page'>
-                <h2 className='colds-page-header'>Hot Subs</h2>
-                <div className='colds-grid'>
-                    {ordersWithHotOnly}
-                </div>
-            </div>
-        )
-        const bothSubPage = (
-            <div className='page'>
-                <h2 className='colds-page-header'>Cold + Hot Orders</h2>
-                <div className='colds-grid'>
-                    {ordersWithBoth}
-                </div>
-            </div>
-        )
         const allPages = (
-            <div className='all-pages-outer'>
-                <div className='foo-container-hide'>
+            <div className='foo-container-hide'>
+                <div className='colds-grid'>
                     {ordersWithColdOnly}
                     {ordersWithHotOnly}
                     {ordersWithBoth}
@@ -362,22 +350,252 @@ const FormattedSubs = ({orders, subLegend}) => {
             </div>
         )
 
-        return allPages;
+        const namesPage = (
+            <div className='names-box'>
+                {allNames.map(name => {
+                    return <p>{name}</p>
+                })}
+            </div>
+        )
+
+        const newRegisterPage = (
+            <div className='register-body'>
+                {registerData}
+            </div>
+        )
+
+        setFooRendered(allPages);
+        setAllNamesPage(namesPage);
+        setRegisterPage(newRegisterPage);
+        setFooTicketIds(localTickets);
+    }
+
+    const constructPagesJSX = (groups) => {
+
+        let coldPages = [];
+        let hotPages = [];
+        let bothPages = [];
+
+        let target;
+        let targetArr;
+        let allPages = [];
+        let allGroups = [...groups.coldGroups, ...groups.hotGroups, ...groups.bothGroups, ...groups.bothGroups];
+        let pageGroup = [];
+        for (let i = 0; i < allGroups.length; i++) {
+            let curr = allGroups[i];
+            let groupHtml = (<div className='ticket-group-strip'>
+                {/* <h4 className='ldrop-meta-text no-marg'>Drop: Fr1</h4>
+                <h4 className='ldrop-meta-text'>Due: 11:20</h4> */}
+
+                {curr.map(elem => {
+                    return elem.jsx;
+                })}
+            </div>
+            )
+
+            pageGroup.push(groupHtml);
+
+            if (pageGroup.length === 3) {
+                allPages.push(pageGroup);
+                pageGroup = [];
+            }
+
+        }
+        if (pageGroup.length > 0) allPages.push(pageGroup)
+
+        // for (let index = 0; index < 3; index++) {
+
+        //     let pageGroup = [];
+
+        //     if (index === 0) {
+        //         target = groups.coldGroups;
+        //         targetArr = coldPages;
+        //     } else if (index === 1) {
+        //         target = groups.hotGroups;
+        //         targetArr = hotPages;
+        //     } else {
+        //         target = groups.bothGroups;
+        //         targetArr = bothPages;
+        //     }
+
+        //     for (let i = 0; i < target.length; i++) {
+        //         let curr = target[i];
+        //         let groupHtml = (<div className='ticket-group-strip'>
+        //             {/* <h4 className='ldrop-meta-text no-marg'>Drop: Fr1</h4>
+        //             <h4 className='ldrop-meta-text'>Due: 11:20</h4> */}
+
+        //             {curr.map(elem => {
+        //                 return elem.jsx;
+        //             })}
+        //         </div>
+        //         )
+    
+        //         pageGroup.push(groupHtml);
+    
+        //         if (pageGroup.length === 3) {
+        //             targetArr.push(pageGroup);
+        //             pageGroup = [];
+        //         }
+    
+        //     }
+        //     if (pageGroup.length > 0) targetArr.push(pageGroup)
+        // }
+
+        setPrintedColdPages(allPages)
+        // setPrintedHotPages(hotPages);
+        // setPrintedBothPages(bothPages);
 
     }
-    let main = formatSubOrders(orders);
+
+    const createTicketStrips = () => {
+        const ticketIds = [...realTicketIds]
+        const stripHeight = 1100;
+        let coldStrips = [];
+        let hotStrips = [];
+        let bothStrips = [];
+        ticketIds.forEach(tick => {
+            if (tick.type === "cold") {
+                coldStrips.push(tick);
+            } else if (tick.type === "hot") {
+                hotStrips.push(tick);
+            } else {
+                bothStrips.push(tick);
+            }
+        })
+
+        let coldGroups = [];
+        let hotGroups = [];
+        let bothGroups = [];
+
+        let target;
+        let targetArr;
+
+        for (let index = 0; index < 3; index++) {
+
+            let remaining = stripHeight;
+            let currGroup = [];
+
+            if (index === 0) {
+                target = coldStrips;
+                targetArr = coldGroups;
+            } else if (index === 1) {
+                target = hotStrips;
+                targetArr = hotGroups;
+            } else {
+                target = bothStrips;
+                targetArr = bothGroups;
+            }
+
+            for (let i = 0; i < target.length; i++) {
+                let currTick = target[i];
+                remaining -= currTick.height;
+                if (remaining < 0) {
+                    targetArr.push(currGroup);
+                    currGroup = [currTick];
+                    remaining = stripHeight - currTick.height;
+                } else {
+                    currGroup.push(currTick)
+                }
+            }
+            if (currGroup.length > 0) {
+                targetArr.push(currGroup);
+            }
+        }
+
+        constructPagesJSX({hotGroups: hotGroups, coldGroups: coldGroups, bothGroups: bothGroups});
+    }
 
     useEffect(() => {
-        for (let i = 0; i < ticketIds.length; i++) {
-            let elem = document.getElementById(ticketIds[i]);
-            
+        formatSubOrders();
+    }, [orders])
+
+    // this hook handles the measuring of tickets via hidden rendering.
+
+    useEffect(() => {
+        if (fooTicketIds.length === 0) return;
+
+        let realTickets = [];
+        for (let i = 0; i < fooTicketIds.length; i++) {
+            let pushObj = {...fooTicketIds[i]}
+            let elem = document.getElementById(fooTicketIds[i].id);
+            pushObj.height = elem.offsetHeight;
+
+            realTickets.push(pushObj);
         }
-    })
+        setRealTicketIds(realTickets);
+
+    }, [fooTicketIds])
+
+    // this hook calls to action the actual rendering
+
+    useEffect(() => {
+
+        if (realTicketIds.length > 0) {
+            createTicketStrips();
+        }
+
+    }, [realTicketIds])
 
   return (
-    <div>
-        {main}
-        <h1>poopy diapers</h1>
+    <div className={animationState === "complete" ? "showTickets" : "hideTickets"}>
+        {/* <div className='page'></div> */}
+        <div className='all-pages-preview'>
+            {printedColdPages && 
+            printedColdPages.map((page, index) => {
+                return (
+                    <div className={index === 0 ? "last-page" : "page"}>
+                        {page.map(strip => {
+                            return strip;
+                        })}
+                    </div>
+                )
+            })
+            }
+            {allNamesPage && 
+                <div className='page'>
+                    {allNamesPage}
+                </div>
+            }
+            {registerPage && 
+                <div className='page'>
+                    {registerPage}
+                </div>
+            }
+            {/* {printedHotPages && 
+            printedHotPages.map(page => {
+                return (
+                    <div className='page'>
+                        {page.map(strip => {
+                            return strip;
+                        })}
+                    </div>
+                )
+            })
+            }
+            {printedBothPages && 
+            printedBothPages.map(page => {
+                return (
+                    <div className='page'>
+                        {page.map(strip => {
+                            return strip;
+                        })}
+                    </div>
+                )
+            })
+            }
+            {printedBothPages && 
+            printedBothPages.map(page => {
+                return (
+                    <div className='page'>
+                        {page.map(strip => {
+                            return strip;
+                        })}
+                    </div>
+                )
+            }) */}
+            {/* } */}
+        </div>
+        {fooRendered}
     </div>
   )
 }
