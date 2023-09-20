@@ -7,6 +7,9 @@ import jmBottle from "./assets/jersey-mikes_bottle.png";
 import jmHat from "./assets/jersey-mikes_cap.png";
 import eyes from "./assets/jersey-mikes_eye.png";
 
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
+
 function App() {
 
     const jmSubsLegend = {
@@ -27,8 +30,8 @@ function App() {
             42: [["onion", "- grl o's"], ["pepper", "- grl peps"], ["mayo", "- chp mayo"]],
             43: [["onion", "- grl o's"], ["pepper", "- grl peps"], ["mayo", "- chp mayo"]],
             44: [["lettuce", "- lettuce"], ["tomato", "- tomato"], ["blue", "- blue chz"], ["buffalo", "- buff sauce"], ["franks", "- buff sauce"], ["hot sauce", "- buff sauce"]],
-            55: [["onion", "- grl o's"], ["green pepper", "- grl peps"], ["sweet pepper", "-grl peps"], ["jalapeno", "- jal peps"], ["mushroom", "- mush"]],
-            56: [["onion", "- grl o's"], ["green pepper", "- grl peps"], ["sweet pepper", "-grl peps"], ["jalapeno", "- jal peps"], ["mushroom", "- mush"]],
+            55: [["onion", "- grl o's"], ["green pepper", "- grl peps"], ["sweet pepper", "-grl peps"],["bell pepper", "-grl peps"], ["jalapeno", "- jal peps"], ["mushroom", "- mush"]],
+            56: [["onion", "- grl o's"], ["green pepper", "- grl peps"], ["sweet pepper", "-grl peps"],["bell pepper", "-grl peps"], ["jalapeno", "- jal peps"], ["mushroom", "- mush"]],
             64: [["onion", "- grl o's"], ["pepper", "- green peps"]],
             65: [["onion", "- grl o's"], ["pepper", "- grl peps"], ["mushroom", "- port"], ["port", "- port"]],
             66: [["onion", "- grl o's"], ["pepper", "- grl peps"], ["mushroom", "- port"], ["port", "- port"]],
@@ -61,49 +64,49 @@ function App() {
         let forJumbled = txt.split(" ");
         setJumbled(forJumbled)
         logFormattedText(pasted)
-        setAnimationState("begin");
+        // setAnimationState("begin");
     })
 
-    useEffect(() => {
-        if (animationState === "begin") {
-            setAnimationState("in progress")
-            setVinnie({...vinnie, text: {animation: "text-move 2s", animationFillMode: "forwards"}})
-            setTimeout(() => {
-                setVinnie(prev => {
-                    return {...prev, bottle: {animation: "awakenBottle .5s", "animation-fill-mode": "forwards"}, hat: {animation: "awakenHat .5s", animationFillMode: "forwards"}}
-                })
-            }, 2000)
-            setTimeout(() => {
-                setAnimationState("add eyes")
-                setVinnieTalk("DAMN SON WHERED YOU FIND THIS!")
-            }, 2500)
-            setTimeout(() => {
-                setVinnieTalk("I MEAN! HEY KIDS... YOU GOT A LUNCHDROP EH.")
-            }, 6000)
-            setTimeout(() => {
-                setVinnieTalk("YOU JUST LEAVE THIS TO OL' VINNIE HERE");
-                setVinnie(prev => {
-                    return {...prev,  hat: {animation: "hatSpin 2s", animationFillMode: "forwards"}}
-                })
-            }, 10000)
-            setTimeout(() => {
-                setVinnie(prev => {
-                    return {...prev, vinegar: {animation: "juicedVin 6s", animationFillMode: "forwards", display: "block"}, bottle: {animation: "juiced 6s", animationFillMode: "forwards"}, text: {animation: "text-purple 8s", "animation-fill-mode": "forwards", top: "80%"}, hat: {display: "none"}, eyes: {left: {animation: "juicedEyesLeft 6s", animationFillMode: "forwards"}, right: {animation: "juicedEyesRight 6s", animationFillMode: "forwards"}}}
-                })
-            }, 12000)
-            setTimeout(() => {
-                setVinnieTalk("AHH MUCH BETTER KIDS");
-                setVinnie(prev => {
-                    return {...prev, vinegar: {display: "none"}}
-                })
-                setAnimationState("complete")
-            }, 20000)
-            setTimeout(() => {
-                setVinnieTalk("$#%$ MY @#$@#$ HAT");
-                triggerPrint();
-            }, 22000)
-        }
-    }, [animationState])
+    // useEffect(() => {
+    //     if (animationState === "begin") {
+    //         setAnimationState("in progress")
+    //         setVinnie({...vinnie, text: {animation: "text-move 2s", animationFillMode: "forwards"}})
+    //         setTimeout(() => {
+    //             setVinnie(prev => {
+    //                 return {...prev, bottle: {animation: "awakenBottle .5s", "animation-fill-mode": "forwards"}, hat: {animation: "awakenHat .5s", animationFillMode: "forwards"}}
+    //             })
+    //         }, 2000)
+    //         setTimeout(() => {
+    //             setAnimationState("add eyes")
+    //             setVinnieTalk("DAMN SON WHERED YOU FIND THIS!")
+    //         }, 2500)
+    //         setTimeout(() => {
+    //             setVinnieTalk("I MEAN! HEY KIDS... YOU GOT A LUNCHDROP EH.")
+    //         }, 6000)
+    //         setTimeout(() => {
+    //             setVinnieTalk("YOU JUST LEAVE THIS TO OL' VINNIE HERE");
+    //             setVinnie(prev => {
+    //                 return {...prev,  hat: {animation: "hatSpin 2s", animationFillMode: "forwards"}}
+    //             })
+    //         }, 10000)
+    //         setTimeout(() => {
+    //             setVinnie(prev => {
+    //                 return {...prev, vinegar: {animation: "juicedVin 6s", animationFillMode: "forwards", display: "block"}, bottle: {animation: "juiced 6s", animationFillMode: "forwards"}, text: {animation: "text-purple 8s", "animation-fill-mode": "forwards", top: "80%"}, hat: {display: "none"}, eyes: {left: {animation: "juicedEyesLeft 6s", animationFillMode: "forwards"}, right: {animation: "juicedEyesRight 6s", animationFillMode: "forwards"}}}
+    //             })
+    //         }, 12000)
+    //         setTimeout(() => {
+    //             setVinnieTalk("AHH MUCH BETTER KIDS");
+    //             setVinnie(prev => {
+    //                 return {...prev, vinegar: {display: "none"}}
+    //             })
+    //             setAnimationState("complete")
+    //         }, 20000)
+    //         setTimeout(() => {
+    //             setVinnieTalk("$#%$ MY @#$@#$ HAT");
+    //             triggerPrint();
+    //         }, 22000)
+    //     }
+    // }, [animationState])
 
     const triggerPrint = () => {
         window.print();
@@ -545,11 +548,6 @@ function App() {
                   let curr = breadStats[k];
                 //   console.log(curr)
   
-                  if (newSub.subSize && newSub.subNumber !== 0) {
-                    console.log("weird breK", curr)
-                      break;
-                  }
-  
                   // size -- currently does not check for kids meals // have yet to see if and how lunchdrop supplies this
   
                   if (!newSub.subSize) {
@@ -597,6 +595,7 @@ function App() {
                     // checks if this is a side item
                     let sideCheck = sideItemsCheck(currOrderItem.innerText.toLowerCase());
                     if (sideCheck) {
+                        console.log(currOrderItem.innerText)
                         isSideItem = true;
                         newOrder.sideItems.push(currOrderItem.innerText);
                         break;
@@ -607,6 +606,9 @@ function App() {
                   }
                 }
                 if (isSideItem) {
+                    if (!dontPush) {
+                        orders.push(newOrder);
+                    }
                     continue;
                 }
 
@@ -654,8 +656,46 @@ function App() {
               orders.push(newOrder);
           }
         }
+        console.log(orders)
         setRawSubs(orders)
     }
+
+    async function generatePDF() {
+        const pdf = new jsPDF("p", "mm", "a4"); // Initialize jsPDF
+        const pages = document.querySelectorAll('.page');
+      
+        for (let i = 0; i < pages.length; i++) {
+          const canvas = await html2canvas(pages[i], {
+            scale: 1, // Adjust scale as needed
+            width: pages[i].offsetWidth,
+            height: pages[i].offsetHeight,
+          });
+      
+          const imgData = canvas.toDataURL('image/png');
+          
+          // Calculate scaling factors
+          const pdfPageWidth = 210;  // for A4 in mm
+          const pdfPageHeight = 297;  // for A4 in mm
+          const widthScale = pdfPageWidth / canvas.width;
+          const heightScale = pdfPageHeight / canvas.height;
+          const scale = Math.min(widthScale, heightScale);
+      
+          // Calculate image dimensions
+          const imgWidth = canvas.width * scale;
+          const imgHeight = canvas.height * scale;
+      
+          // Add image to PDF
+          pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      
+          // Add new page only if it's not the last page
+          if (i < pages.length - 1) {
+            pdf.addPage();
+          }
+        }
+        
+        pdf.save("document.pdf"); // Save PDF
+      }
+      
 
   return (
     <div className="App">
@@ -663,15 +703,17 @@ function App() {
             <h1 className='header-txt'>LUNCHDROP LEGEND</h1>
         </div>
         <div className='main'>
-            {animationState === "unset" && <div className='paste'>
+            {rawSubs.length <= 0 ? <div className='paste'>
                 <h2 className='paste-txt'>Paste Here</h2>
                 <input className='paste-input'></input>
             </div>
+            :
+            <button className="print-btn" onClick={generatePDF}>PRINT</button>
             }
             <div className='vinnie-talk'>
                 <h1 className='vinnie-talk-txt'>{vinnieTalk}</h1>
             </div>
-            {jumbled && animationState !== "complete" &&
+            {/* {jumbled && animationState !== "complete" &&
                 <div className='jumbled-text' style={vinnie.text}>
                     {jumbled.map(str => {
                         let rand = ((Math.random()*24) * 15);
@@ -680,13 +722,15 @@ function App() {
                         return <p style={{transform: `rotate(${rand}deg)`, left: `${x}px`, top: `${y}px`}} className='jumbled-item'>{str}</p>
                     })}
                 </div>
-            }
-            <img id="jm-bottle" style={vinnie.bottle} src={jmBottle} alt='you betcha'></img>
+            } */}
+            {/* <img id="jm-bottle" style={vinnie.bottle} src={jmBottle} alt='you betcha'></img>
             <img id="jm-hat" style={vinnie.hat} src={jmHat} alt='you betcha'></img>
             <div className='vinegar' style={vinnie.vinegar}></div>
             {(animationState === "add eyes" || animationState === "complete")&& <img id="jm-eye-left" style={vinnie.eyes.left} src={eyes} alt='you betcha'></img>}
-            {(animationState === "add eyes" || animationState === "complete")&& <img id="jm-eye-right" style={vinnie.eyes.right} src={eyes} alt='you betcha'></img>}
-            <FormattedSubs orders={rawSubs} subLegend={jmSubsLegend} animationState={animationState}/>
+            {(animationState === "add eyes" || animationState === "complete")&& <img id="jm-eye-right" style={vinnie.eyes.right} src={eyes} alt='you betcha'></img>} */}
+            {/* <FormattedSubs orders={rawSubs} subLegend={jmSubsLegend} animationState={animationState}/> */}
+            <FormattedSubs orders={rawSubs} subLegend={jmSubsLegend} animationState={"complete"}/>
+
         </div>
     </div>
   );

@@ -449,7 +449,7 @@ const FormattedSubs = ({orders, subLegend, animationState}) => {
 
     const createTicketStrips = () => {
         const ticketIds = [...realTicketIds]
-        const stripHeight = 1100;
+        const stripHeight = 1050;
         let coldStrips = [];
         let hotStrips = [];
         let bothStrips = [];
@@ -543,7 +543,7 @@ const FormattedSubs = ({orders, subLegend, animationState}) => {
             {printedColdPages && 
             printedColdPages.map((page, index) => {
                 return (
-                    <div className={index === 0 ? "last-page" : "page"}>
+                    <div className={"page"}>
                         {page.map(strip => {
                             return strip;
                         })}

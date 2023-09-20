@@ -1,6 +1,6 @@
 {
   "name": "lunchdroplegend",
-  "homepage": "https:gibsoncodes.github.io/lunchdropLegend",
+  "homepage": "https://gibsoncodes.github.io/lunchdropLegend",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -8,6 +8,8 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "gh-pages": "^6.0.0",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^2.5.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
@@ -17,9 +19,9 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "start": "react-scripts start",
-  "predeploy": "npm run build",
-  "deploy": "gh-pages -d build",
-  "build": "react-scripts build"
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
+    "build": "react-scripts build"
   },
   "eslintConfig": {
     "extends": [
