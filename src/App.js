@@ -692,8 +692,13 @@ function App() {
             pdf.addPage();
           }
         }
-        
-        pdf.save("document.pdf"); // Save PDF
+        const today = new Date();
+        const day = today.getDate();  // Gets the day as a number
+        const month = today.getMonth() + 1;  // Gets the month as a number (0-based, so add 1)
+
+        const dayStr = String(day);
+        const monthStr = String(month);
+        pdf.save(`lunchDLengend${monthStr}/${dayStr}.pdf`); // Save PDF
       }
       
 
@@ -708,11 +713,11 @@ function App() {
                 <input className='paste-input'></input>
             </div>
             :
-            <button className="print-btn" onClick={generatePDF}>PRINT</button>
+            <button className="print-btn" onClick={generatePDF}>Download PDF</button>
             }
-            <div className='vinnie-talk'>
+            {/* <div className='vinnie-talk'>
                 <h1 className='vinnie-talk-txt'>{vinnieTalk}</h1>
-            </div>
+            </div> */}
             {/* {jumbled && animationState !== "complete" &&
                 <div className='jumbled-text' style={vinnie.text}>
                     {jumbled.map(str => {

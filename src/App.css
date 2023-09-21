@@ -70,11 +70,12 @@ ul {
     padding-left: 10px;
 }
 
-.colds-grid {
-    width: 100%;
+/* .colds-grid {
+    height: 295mm;
+    width: 208mm;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-}
+} */
 
 .ticket-sub {
     display: flex;
@@ -157,6 +158,10 @@ ul {
 .print-btn {
     padding: 10px 20px;
     background-color: rgb(255, 67, 67);
+    border: solid black 2px;
+}
+.print-btn:hover {
+    background-color: red;
 }
 .page {
     margin: 10px 0;
@@ -198,6 +203,7 @@ ul {
     flex-wrap: wrap;
     height: 1000px;
     padding: 0 20px;
+    width: 100%;
 
 }
 #jm-bottle {

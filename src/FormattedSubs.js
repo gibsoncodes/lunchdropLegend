@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useLayoutEffect } from 'react'
 import './App.css';
 import { useState } from 'react';
 import MeasureElement from './MeasureElement';
@@ -114,8 +114,8 @@ const FormattedSubs = ({orders, subLegend, animationState}) => {
         let addedToppings = (
 
                 <React.Fragment>
-                    {toAdd.map(elem => {
-                        return <li className='topping-text'>{elem}</li>
+                    {toAdd.map((elem, index) => {
+                        return <li key={`${index} keyd`} className='topping-text'>{elem}</li>
                     })}
                 </React.Fragment>
         )
@@ -197,11 +197,11 @@ const FormattedSubs = ({orders, subLegend, animationState}) => {
                     <React.Fragment>
                         <li className='mw-text'>Mike's Way</li>
                         {plus.xtraCheeseAndMeat.length > 0 && 
-                         plus.xtraCheeseAndMeat.map(elem => {
-                            return (<li className='topping-text'>{elem.toUpperCase()}</li>);
+                         plus.xtraCheeseAndMeat.map((elem, index)=> {
+                            return (<li key={`${index}-top1`} className='topping-text'>{elem.toUpperCase()}</li>);
                         })}
-                        {removed.map(elem => {
-                            return <li className='topping-text'>- {elem.toUpperCase()}</li>
+                        {removed.map((elem, index) => {
+                            return <li key={`${index}-top2`} className='topping-text'>- {elem.toUpperCase()}</li>
                         })}
                     </React.Fragment>
                 );
@@ -279,8 +279,8 @@ const FormattedSubs = ({orders, subLegend, animationState}) => {
         }
         return (
             <div className='register-sub'>
-                {thisSubs.map(item => {
-                    return <p>{item}</p>
+                {thisSubs.map((item, index) => {
+                    return <p key={`${index}register`}>{item}</p>
                 })}
             </div>
         )
@@ -291,7 +291,7 @@ const FormattedSubs = ({orders, subLegend, animationState}) => {
         let ordersWithColdOnly = [];
         let ordersWithBoth = [];
         let localTickets = [];
-        let allNames = [];
+        let allTickets = [];
         let registerData = [];
 
         for (let i = 0; i < orders.length; i++) {
@@ -299,7 +299,6 @@ const FormattedSubs = ({orders, subLegend, animationState}) => {
             registerData.push(registerDataHandler(_));
             let name = _.orderName;
             let ldName = _.lunchDropName;
-            allNames.push(`${name} -- ${ldName}`);
             let colds = [];
             let hots = [];
             let sides;
@@ -318,7 +317,16 @@ const FormattedSubs = ({orders, subLegend, animationState}) => {
             let ticketId = name + i + "ticket";
 
             const wholeTicket = (
-                <div id={ticketId} className='ticket-outer'>
+                <div key={ticketId} id={ticketId} className='ticket-outer'>
+                    <h4 className='ticket-name'>{name} <span className='ldName'>{ldName}</span></h4>
+                    {colds}
+                    {hots}
+                    {sides}
+                </div>
+            )
+
+            const fooTicket = (
+                <div key={`foo${ticketId}`} id={`foo${ticketId}`} className='ticket-outer'>
                     <h4 className='ticket-name'>{name} <span className='ldName'>{ldName}</span></h4>
                     {colds}
                     {hots}
@@ -328,17 +336,21 @@ const FormattedSubs = ({orders, subLegend, animationState}) => {
 
             if (hots.length > 0) {
                 if (colds.length === 0) {
-                    ordersWithHotOnly.push(wholeTicket);
+                    ordersWithHotOnly.push(fooTicket);
+                    allTickets.push({type: 2, ticket: _})
                     localTickets.push({type: "hot", id: ticketId, jsx: wholeTicket})
                 } else {
-                    ordersWithBoth.push(wholeTicket);
+                    allTickets.push({type: 3, ticket: _})
+                    ordersWithBoth.push(fooTicket);
                     localTickets.push({type: "both", id: ticketId, jsx: wholeTicket})
                 }
             } else {
-                ordersWithColdOnly.push(wholeTicket);
+                allTickets.push({type: 1, ticket: _})
+                ordersWithColdOnly.push(fooTicket);
                 localTickets.push({type: "cold", id: ticketId, jsx: wholeTicket})
             }
         }
+        allTickets.sort((a,b) => a.type - b.type)
 
         const allPages = (
             <div className='foo-container-hide'>
@@ -350,16 +362,39 @@ const FormattedSubs = ({orders, subLegend, animationState}) => {
             </div>
         )
 
+        let itemCount = 0;
+        for (let j = 0; j < allTickets.length; j++) {
+            let curr = allTickets[j].ticket;
+            itemCount += curr.subs.length;
+            itemCount += curr.sideItems.length;
+        }
         const namesPage = (
             <div className='names-box'>
-                {allNames.map(name => {
-                    return <p>{name}</p>
+                <h2>item count: {itemCount}</h2>
+                {allTickets.map(tick => {
+                    let bagSize = null;
+                    let tickType = null;
+                    tick.ticket.subs.forEach(sub => {
+                        if (sub.subSize === "G") {
+                            bagSize = "- BIG BAG";
+                        }
+                        if (tickType !== "cold") {
+                            if (!sub.isColdSub) {
+                                tickType = "- HOT SUB"
+                            }
+                            else {
+                                tickType = "cold"
+                            }
+                        }
+                    })
+                    return <p style={{width: "fit-content"}}>{tick.ticket.orderName}: {tick.ticket.lunchDropName} {tickType === "cold" ? null : "- HOT SUB"} {bagSize}</p>
                 })}
             </div>
         )
 
         const newRegisterPage = (
             <div className='register-body'>
+                <h2>REGISTER PURPOSES</h2>
                 {registerData}
             </div>
         )
@@ -387,8 +422,8 @@ const FormattedSubs = ({orders, subLegend, animationState}) => {
                 {/* <h4 className='ldrop-meta-text no-marg'>Drop: Fr1</h4>
                 <h4 className='ldrop-meta-text'>Due: 11:20</h4> */}
 
-                {curr.map(elem => {
-                    return elem.jsx;
+                {curr.map((elem, index) => {
+                    return <React.Fragment key={`${index}strip`}>{elem.jsx}</React.Fragment>
                 })}
             </div>
             )
@@ -440,7 +475,6 @@ const FormattedSubs = ({orders, subLegend, animationState}) => {
         //     }
         //     if (pageGroup.length > 0) targetArr.push(pageGroup)
         // }
-
         setPrintedColdPages(allPages)
         // setPrintedHotPages(hotPages);
         // setPrintedBothPages(bothPages);
@@ -505,20 +539,21 @@ const FormattedSubs = ({orders, subLegend, animationState}) => {
         constructPagesJSX({hotGroups: hotGroups, coldGroups: coldGroups, bothGroups: bothGroups});
     }
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         formatSubOrders();
     }, [orders])
 
     // this hook handles the measuring of tickets via hidden rendering.
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (fooTicketIds.length === 0) return;
 
         let realTickets = [];
         for (let i = 0; i < fooTicketIds.length; i++) {
             let pushObj = {...fooTicketIds[i]}
-            let elem = document.getElementById(fooTicketIds[i].id);
+            let elem = document.getElementById(`foo${fooTicketIds[i].id}`);
             pushObj.height = elem.offsetHeight;
+            console.log(pushObj.height, pushObj.id)
 
             realTickets.push(pushObj);
         }
@@ -526,12 +561,12 @@ const FormattedSubs = ({orders, subLegend, animationState}) => {
 
     }, [fooTicketIds])
 
-    // this hook calls to action the actual rendering
+    // this hook calls to action the actual renderi
 
     useEffect(() => {
 
         if (realTicketIds.length > 0) {
-            createTicketStrips();
+                createTicketStrips();
         }
 
     }, [realTicketIds])
@@ -541,9 +576,11 @@ const FormattedSubs = ({orders, subLegend, animationState}) => {
         {/* <div className='page'></div> */}
         <div className='all-pages-preview'>
             {printedColdPages && 
-            printedColdPages.map((page, index) => {
+            <React.Fragment>
+
+            {printedColdPages.map((page, index) => {
                 return (
-                    <div className={"page"}>
+                    <div key={`${index}page-rend`} className={"page"}>
                         {page.map(strip => {
                             return strip;
                         })}
@@ -560,6 +597,8 @@ const FormattedSubs = ({orders, subLegend, animationState}) => {
                 <div className='page'>
                     {registerPage}
                 </div>
+            }
+            </React.Fragment>
             }
             {/* {printedHotPages && 
             printedHotPages.map(page => {
