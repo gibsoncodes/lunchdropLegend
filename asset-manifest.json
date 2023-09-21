@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/lunchdropLegend/static/css/main.15278984.css",
-    "main.js": "/lunchdropLegend/static/js/main.30d8aa6e.js",
+    "main.css": "/lunchdropLegend/static/css/main.f6715bad.css",
+    "main.js": "/lunchdropLegend/static/js/main.59af18f1.js",
     "static/js/703.cfd9f0e1.chunk.js": "/lunchdropLegend/static/js/703.cfd9f0e1.chunk.js",
     "static/js/760.54b7c237.chunk.js": "/lunchdropLegend/static/js/760.54b7c237.chunk.js",
     "static/js/787.cd573cde.chunk.js": "/lunchdropLegend/static/js/787.cd573cde.chunk.js",
@@ -10,14 +10,14 @@
     "static/media/jersey-mikes_eye.png": "/lunchdropLegend/static/media/jersey-mikes_eye.e9c97069f4dd78cf35a2.png",
     "static/media/logo.svg": "/lunchdropLegend/static/media/logo.6ce24c58023cc2f8fd88fe9d219db6c6.svg",
     "index.html": "/lunchdropLegend/index.html",
-    "main.15278984.css.map": "/lunchdropLegend/static/css/main.15278984.css.map",
-    "main.30d8aa6e.js.map": "/lunchdropLegend/static/js/main.30d8aa6e.js.map",
+    "main.f6715bad.css.map": "/lunchdropLegend/static/css/main.f6715bad.css.map",
+    "main.59af18f1.js.map": "/lunchdropLegend/static/js/main.59af18f1.js.map",
     "703.cfd9f0e1.chunk.js.map": "/lunchdropLegend/static/js/703.cfd9f0e1.chunk.js.map",
     "760.54b7c237.chunk.js.map": "/lunchdropLegend/static/js/760.54b7c237.chunk.js.map",
     "787.cd573cde.chunk.js.map": "/lunchdropLegend/static/js/787.cd573cde.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.15278984.css",
-    "static/js/main.30d8aa6e.js"
+    "static/css/main.f6715bad.css",
+    "static/js/main.59af18f1.js"
   ]
 }
